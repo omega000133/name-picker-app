@@ -1,0 +1,19 @@
+.hiddenradio [type=radio] { 
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.hiddenradio [type=radio] + img {
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.hiddenradio [type=radio]:checked + img {
+  border-bottom: 4px solid gray;
+}
+
+.ReactModal__Overlay{
+  background-color: rgba(10, 10, 10, 0.7) !important;
+}
