@@ -9,31 +9,34 @@ import Modal from "react-modal";
 import "./App.css";
 
 const App = () => {
+
   const [namesData, setNamesData] = useState([]);
   const [sortedData, setSortedData] = useState([]);
-  const [searchWord, setSearchWord] = useState("");
+  const [searchWord, setSearchWord] = useState('')
   const [favouriteData, setFavouriteData] = useState([]);
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState('');
   const [chosenName, setChosenName] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    getNames().then((data) => setNamesData(data));
+    getNames().then(data =>
+      setNamesData(data),
+    );
     localStorage.favouriteNames &&
       setFavouriteData(JSON.parse(localStorage.getItem("favouriteNames")));
-    setSortedData(namesData);
-  }, []);
+    setSortedData(namesData)
+  },[])
 
   useEffect(() => {
     const sortData = [...namesData].sort((a, b) => {
-      return a.name > b.name ? 1 : -1;
-    });
+      return a.name > b.name ? 1 : -1
+    })
     setSortedData(sortData);
-  }, [namesData]);
+  }, [namesData])
 
-  const handleInput = (event) => {
+  const handleInput = event => {
     setSearchWord(event.target.value.toLowerCase());
-  };
+  }
 
   const addFavouriteNames = (addId) => {
     let newFavoriteData = [...favouriteData, addId];
@@ -43,14 +46,28 @@ const App = () => {
 
   const removeFavouriteNames = (removeId) => {
     let newFavoriteData = favouriteData;
-    newFavoriteData = favouriteData.filter((id) => id !== removeId);
+    newFavoriteData = favouriteData.filter(id => id !== removeId)
     setFavouriteData(newFavoriteData);
     localStorage.setItem("favouriteNames", JSON.stringify(newFavoriteData));
   };
 
-  const handleChange = (event) => {
+  const handleChange = event => {
     setGender(event.target.value.toLowerCase());
-  };
+  }
+
+  const shuffle = () => {
+    let newNames = sortedData;
+    let currentIndex = newNames.length;
+    let temporaryValue, randomIndex;
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+      temporaryValue = newNames[currentIndex];
+      newNames[currentIndex] = newNames[randomIndex];
+      newNames[randomIndex] = temporaryValue;
+    }
+    setSortedData([...newNames]);
+  }
 
   const openModal = () => {
     let chosenNum = Math.ceil(Math.random() * 2);
@@ -60,9 +77,9 @@ const App = () => {
       chosenNames.push(namesData[ranNum]);
       chosenNum--;
     }
-    setChosenName([...chosenNames]);
+    setChosenName([...chosenNames])
     setIsOpen(true);
-  };
+  }
 
   const closeModal = () => setIsOpen(false);
   return (
@@ -79,86 +96,85 @@ const App = () => {
             name="gender"
             value=""
             imgSrc="./images/all.png"
-            checked="true"
-          />
+            checked='true' />
           <RadioField
             width="60px"
             name="gender"
             value="f"
-            imgSrc="./images/female.png"
-          />
+            imgSrc="./images/female.png" />
           <RadioField
             width="60px"
             name="gender"
             value="m"
-            imgSrc="./images/male.png"
-          />
+            imgSrc="./images/male.png" />
         </div>
-
-        <button className="" onClick={openModal}>
+        <button
+          onClick={shuffle}>
+          <TbArrowsRandom className="mx-1 text-3xl bg-gray-200 hover:text-red-500" />
+        </button>
+        <button
+          className=""
+          onClick={openModal}>
           <GiCardRandom className="mx-1 text-3xl bg-gray-200 hover:text-red-500" />
         </button>
         {/* <button onClick={openModal}>Open modal</button> */}
-        <Modal
-          onBlur={closeModal}
-          isOpen={isOpen}
-          ariaHideApp={false}
-          onRequestClose={closeModal}
-          className="w-48 mx-auto text-center mt-96 align-center"
-        >
-          {chosenName.map((item, index) => {
-            return (
-              <Item
-                key={index}
-                id={index}
-                name={item.name}
-                gender={item.gender}
-              />
-            );
-          })}
+        <Modal onBlur={closeModal} isOpen={isOpen} ariaHideApp={false} onRequestClose={closeModal} className="w-48 mx-auto text-center mt-96 align-center">
+          {
+            chosenName.map((item, index) => {
+              return (
+                <Item
+                  key={index}
+                  id={index}
+                  name={item.name}
+                  gender={item.gender}
+                />
+              )
+            })
+          }
         </Modal>
       </div>
       <div className="flex flex-wrap justify-start pb-5 mx-10 border-b-2 w-100">
         <p className="text-5xl">Favourite:&nbsp;</p>
-        {favouriteData.length ? (
-          namesData
-            .filter((item) => favouriteData.includes(item.id))
+        {favouriteData.length
+          ? (
+            namesData
+              .filter(item => favouriteData.includes(item.id))
+              .map((item, index) => {
+                return (
+
+                  <Item
+                    key={index}
+                    id={index}
+                    onClick={() => removeFavouriteNames(item.id)}
+                    name={item.name}
+                    gender={item.gender}
+                  />
+                )
+              })
+          )
+          : (<p className="text-5xl text-gray-600">Click some names below to add your shortlist....</p>)}
+      </div>
+      <div className="flex flex-wrap justify-center w-100">
+        {
+          sortedData
+            .filter(item => !favouriteData.includes(item.id))
+            .filter(item => item.gender.toLowerCase().includes(gender))
+            .filter(item => item.name.toLowerCase().includes(searchWord))
             .map((item, index) => {
               return (
                 <Item
                   key={index}
                   id={index}
-                  onClick={() => removeFavouriteNames(item.id)}
+                  onClick={() => addFavouriteNames(item.id)}
                   name={item.name}
                   gender={item.gender}
                 />
-              );
+              )
             })
-        ) : (
-          <p className="text-5xl text-gray-600">
-            Click some names below to add your shortlist....
-          </p>
-        )}
-      </div>
-      <div className="flex flex-wrap justify-center w-100">
-        {sortedData
-          .filter((item) => !favouriteData.includes(item.id))
-          .filter((item) => item.gender.toLowerCase().includes(gender))
-          .filter((item) => item.name.toLowerCase().includes(searchWord))
-          .map((item, index) => {
-            return (
-              <Item
-                key={index}
-                id={index}
-                onClick={() => addFavouriteNames(item.id)}
-                name={item.name}
-                gender={item.gender}
-              />
-            );
-          })}
+        }
       </div>
     </div>
   );
-};
+}
 
 export default App;
