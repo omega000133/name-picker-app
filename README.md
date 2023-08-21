@@ -15,6 +15,8 @@ v18.16.0
 - npm install
 - npm start
 
+## <a href="https://smartdev6-name-picker-app.vercel.app/">View Demo</a>
+
 ## Design Mock
 
 <img src="./public/name-picker.png" />
